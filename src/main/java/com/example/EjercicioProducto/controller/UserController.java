@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getUserByID(@PathVariable Integer id) throws Throwable {
+    public Optional<User> getUserByID(@PathVariable Integer id) {
         userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         return userRepository.findById(id);
     }

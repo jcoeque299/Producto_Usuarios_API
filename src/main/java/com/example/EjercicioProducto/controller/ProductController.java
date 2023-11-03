@@ -27,7 +27,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Product> getProductByID(@PathVariable Integer id) throws Throwable {
+    public Optional<Product> getProductByID(@PathVariable Integer id) {
         productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
         return productRepository.findById(id);
     }

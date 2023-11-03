@@ -17,4 +17,9 @@ public class GlobalAdviceController {
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
     }
+    @ExceptionHandler(ProductAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleProductAlreadyExistsException(ProductAlreadyExistsException ex) {
+        ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
 }

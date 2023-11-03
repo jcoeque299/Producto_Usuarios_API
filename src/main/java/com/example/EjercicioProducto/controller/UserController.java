@@ -1,18 +1,21 @@
 package com.example.EjercicioProducto.controller;
 
+import com.example.EjercicioProducto.error.ProductAlreadyExistsException;
 import com.example.EjercicioProducto.error.UserNotFoundException;
 import com.example.EjercicioProducto.model.User;
 import com.example.EjercicioProducto.repository.UserRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -21,14 +24,25 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/")
+    @GetMapping("/users")
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/users/{id}")
     public Optional<User> getUserByID(@PathVariable Integer id) {
         userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         return userRepository.findById(id);
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<?> addProduct(@Valid @RequestBody User user) {
+        HttpHeaders locationHeader = new HttpHeaders();
+        locationHeader.setLocation(URI.create("/api/users/"+user.getId()));
+        if (userRepository.existsById(user.getId())) {
+            throw new ProductAlreadyExistsException(user.getId());
+        }
+        userRepository.save(user);
+        return new ResponseEntity<>(user, locationHeader, HttpStatus.CREATED);
     }
 }

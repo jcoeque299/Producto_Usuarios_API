@@ -1,7 +1,8 @@
 package com.example.EjercicioProducto.controller;
 
-import com.example.EjercicioProducto.error.ProductAlreadyExistsException;
+import com.example.EjercicioProducto.error.UserAlreadyExistsException;
 import com.example.EjercicioProducto.error.UserNotFoundException;
+import com.example.EjercicioProducto.error.UserToOverwriteNotFoundException;
 import com.example.EjercicioProducto.model.User;
 import com.example.EjercicioProducto.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -30,9 +31,8 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public Optional<User> getUserByID(@PathVariable Integer id) {
-        userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-        return userRepository.findById(id);
+    public User getUserByID(@PathVariable Integer id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @PostMapping("/users")
@@ -40,9 +40,31 @@ public class UserController {
         HttpHeaders locationHeader = new HttpHeaders();
         locationHeader.setLocation(URI.create("/api/users/"+user.getId()));
         if (userRepository.existsById(user.getId())) {
-            throw new ProductAlreadyExistsException(user.getId());
+            throw new UserAlreadyExistsException(user.getId());
         }
         userRepository.save(user);
         return new ResponseEntity<>(user, locationHeader, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> update(@Valid @RequestBody User user, @PathVariable Integer id) {
+        userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        if (user.getId() == 0 || id.equals(user.getId())) {
+            user.setId(id);
+            userRepository.save(user);
+        }
+        else {
+            userRepository.findById(user.getId()).orElseThrow(() -> new UserToOverwriteNotFoundException(user.getId()));
+            userRepository.deleteById(id);
+            userRepository.save(user);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
+        userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        userRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

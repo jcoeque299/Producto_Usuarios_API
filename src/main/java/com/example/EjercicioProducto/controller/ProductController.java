@@ -1,8 +1,11 @@
 package com.example.EjercicioProducto.controller;
 
 import com.example.EjercicioProducto.error.ProductAlreadyExistsException;
+import com.example.EjercicioProducto.error.ProductToOverwriteNotFoundException;
+import com.example.EjercicioProducto.error.UserNotFoundException;
 import com.example.EjercicioProducto.model.Product;
 import com.example.EjercicioProducto.error.ProductNotFoundException;
+import com.example.EjercicioProducto.model.User;
 import com.example.EjercicioProducto.repository.ProductRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -43,5 +46,27 @@ public class ProductController {
         }
         productRepository.save(product);
         return new ResponseEntity<>(product, locationHeader, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<?> update(@Valid @RequestBody Product product, @PathVariable Integer id) {
+        productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        if (product.getId() == 0 || id.equals(product.getId())) {
+            product.setId(id);
+            productRepository.save(product);
+        }
+        else {
+            productRepository.findById(product.getId()).orElseThrow(() -> new ProductToOverwriteNotFoundException(product.getId()));
+            productRepository.deleteById(id);
+            productRepository.save(product);
+        }
+        return new ResponseEntity<>(product, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
+        productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        productRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

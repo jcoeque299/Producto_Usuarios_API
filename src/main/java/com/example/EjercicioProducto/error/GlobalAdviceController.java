@@ -22,4 +22,19 @@ public class GlobalAdviceController {
         ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
     }
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
+    @ExceptionHandler(ProductToOverwriteNotFoundException.class)
+    public ResponseEntity<ApiError> handleProductToOverwriteNotFoundException(ProductToOverwriteNotFoundException ex) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    }
+    @ExceptionHandler(UserToOverwriteNotFoundException.class)
+    public ResponseEntity<ApiError> handleUserToOverwriteNotFoundException(UserToOverwriteNotFoundException ex) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    }
 }

@@ -27,14 +27,15 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public ResponseEntity<?> getAllProducts() {
+        List<Product> allProducts = productRepository.findAll();
+        return new ResponseEntity<>(allProducts, HttpStatus.OK);
     }
 
     @GetMapping("/products/{id}")
-    public Optional<Product> getProductByID(@PathVariable Integer id) {
-        productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-        return productRepository.findById(id);
+    public ResponseEntity<?> getProductByID(@PathVariable Integer id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
     @PostMapping("/products")

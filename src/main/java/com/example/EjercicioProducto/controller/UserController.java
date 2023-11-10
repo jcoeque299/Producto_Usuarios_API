@@ -26,13 +26,15 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public ResponseEntity<?> getAllUsers() {
+        List<User> allUsers = userRepository.findAll();
+        return new ResponseEntity<>(allUsers, HttpStatus.OK);
     }
 
     @GetMapping("/users/{id}")
-    public User getUserByID(@PathVariable Integer id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    public ResponseEntity<?> getUserByID(@PathVariable Integer id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/users")
